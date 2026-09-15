@@ -207,6 +207,6 @@ The supplied HRS defines the main game behavior, including a 50 MHz input clock,
 
 ## Author
 
-**Abdelrahman (Boda)**
+**Abdelrahman Mohamed**
 
 FPGA / Digital Design Project
