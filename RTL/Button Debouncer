@@ -1,0 +1,49 @@
+module  Debouncer(ref_clk,rst_n,btn_in,btn_out);
+input  wire ref_clk,rst_n,btn_in;
+output reg btn_out;
+reg [19:0] c_reg;
+reg [1:0]q;
+reg tik;
+
+    always @(posedge ref_clk or negedge rst_n) begin
+        if (~rst_n) begin
+            c_reg <= 0;
+            tik <= 0;
+        end else begin
+            if (c_reg == 20'hFFFFF) begin
+                c_reg <= 0;
+                tik <= 1'b1; 
+            end else begin
+                c_reg <= c_reg + 1;
+                tik <= 1'b0; 
+            end
+        end
+    end
+
+    
+
+
+    always @(posedge ref_clk or negedge rst_n) begin
+        if (~rst_n) begin
+            q <= 2'b11; 
+            btn_out   <= 1'b1;
+        end else begin
+     
+            if (tik == 1'b1) begin
+           
+               q <= {q[0], btn_in};
+                
+            
+                if (q == 2'b00) begin
+                    btn_out <= 1'b0;
+                end 
+            
+                else if (q == 2'b11) begin
+                    btn_out <= 1'b1;
+                end
+              
+            end
+        end
+    end
+
+endmodule
