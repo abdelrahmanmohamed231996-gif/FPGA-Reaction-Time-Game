@@ -1,0 +1,141 @@
+#=============================================================================
+# Pin Assignment Script - Reaction Time (LED Chaser) Game
+# Target Board : Terasic DE10-Standard (Intel Cyclone V SoC 5CSXFC6D6F31C6)
+# Source       : DE10-Standard User Manual, Tables 3-5, 3-6, 3-7, 3-8, 3-9
+# Top module   : top_reaction_game (top_reaction_game.v)
+#
+# Usage:
+#   1) Open your Quartus project (top_reaction_game.qpf), OR edit
+#      PROJECT_NAME / REVISION_NAME below and run this script standalone
+#      with:  quartus_sh -t pin_assignment.tcl
+#   2) It sets locations + I/O standards for every top-level port and
+#      commits the assignments to the .qsf.
+#=============================================================================
+
+set PROJECT_NAME  "top_reaction_game"
+set REVISION_NAME "top_reaction_game"
+
+# ---- Open the project if it isn't already open in this Tcl session ----
+if {[catch {package require ::quartus::project}] == 0} {
+    if {![is_project_open]} {
+        if {[project_exists $PROJECT_NAME]} {
+            project_open -revision $REVISION_NAME $PROJECT_NAME
+        } else {
+            project_new -revision $REVISION_NAME $PROJECT_NAME
+        }
+    }
+}
+
+# =============================================================
+# 50 MHz Clock Input  (Table 3-5)
+# =============================================================
+set_location_assignment PIN_AF14                     -to CLK_50MHz
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to CLK_50MHz
+
+# =============================================================
+# Push-buttons (Table 3-7)
+# Board note: KEY[x] is already Schmitt-trigger debounced by the
+# board hardware and is ACTIVE-LOW (reads 0 when pressed, 1 when
+# released). Keep this in mind in the RTL: game_controller.v currently
+# checks "btn == 1'b1" as the press event, which is inverted relative
+# to this polarity - fix that comparison (or invert here) before bring-up.
+# =============================================================
+set_location_assignment PIN_AJ4                      -to RST_N
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to RST_N
+
+set_location_assignment PIN_AK4                      -to BTN_PRESS
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to BTN_PRESS
+
+# =============================================================
+# Slide Switches - SW_TARGET[9:0]  (Table 3-6)
+# I/O standard depends on board jumper JP3 (default 3.3-V LVTTL).
+# =============================================================
+set_location_assignment PIN_AB30                     -to SW_TARGET[0]
+set_location_assignment PIN_Y27                      -to SW_TARGET[1]
+set_location_assignment PIN_AB28                     -to SW_TARGET[2]
+set_location_assignment PIN_AC30                     -to SW_TARGET[3]
+set_location_assignment PIN_W25                      -to SW_TARGET[4]
+set_location_assignment PIN_V25                      -to SW_TARGET[5]
+set_location_assignment PIN_AC28                     -to SW_TARGET[6]
+set_location_assignment PIN_AD30                     -to SW_TARGET[7]
+set_location_assignment PIN_AC29                     -to SW_TARGET[8]
+set_location_assignment PIN_AA30                     -to SW_TARGET[9]
+for {set i 0} {$i < 10} {incr i} {
+    set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to SW_TARGET[$i]
+}
+
+# =============================================================
+# LEDs - LEDS[9:0]  (Table 3-8)
+# =============================================================
+set_location_assignment PIN_AA24                     -to LEDS[0]
+set_location_assignment PIN_AB23                     -to LEDS[1]
+set_location_assignment PIN_AC23                     -to LEDS[2]
+set_location_assignment PIN_AD24                     -to LEDS[3]
+set_location_assignment PIN_AG25                     -to LEDS[4]
+set_location_assignment PIN_AF25                     -to LEDS[5]
+set_location_assignment PIN_AE24                     -to LEDS[6]
+set_location_assignment PIN_AF24                     -to LEDS[7]
+set_location_assignment PIN_AB22                     -to LEDS[8]
+set_location_assignment PIN_AC22                     -to LEDS[9]
+for {set i 0} {$i < 10} {incr i} {
+    set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to LEDS[$i]
+}
+
+# =============================================================
+# 7-Segment Displays - HEX0..HEX3 (Table 3-9)
+# Common-anode displays: driving a segment LOW turns it ON.
+# (Matches the OFF = 7'b111_1111 convention already used in game_seg.v)
+# =============================================================
+# HEX0
+set_location_assignment PIN_W17   -to HEX0[0]
+set_location_assignment PIN_V18   -to HEX0[1]
+set_location_assignment PIN_AG17  -to HEX0[2]
+set_location_assignment PIN_AG16  -to HEX0[3]
+set_location_assignment PIN_AH17  -to HEX0[4]
+set_location_assignment PIN_AG18  -to HEX0[5]
+set_location_assignment PIN_AH18  -to HEX0[6]
+
+# HEX1
+set_location_assignment PIN_AF16  -to HEX1[0]
+set_location_assignment PIN_V16   -to HEX1[1]
+set_location_assignment PIN_AE16  -to HEX1[2]
+set_location_assignment PIN_AD17  -to HEX1[3]
+set_location_assignment PIN_AE18  -to HEX1[4]
+set_location_assignment PIN_AE17  -to HEX1[5]
+set_location_assignment PIN_V17   -to HEX1[6]
+
+# HEX2
+set_location_assignment PIN_AA21  -to HEX2[0]
+set_location_assignment PIN_AB17  -to HEX2[1]
+set_location_assignment PIN_AA18  -to HEX2[2]
+set_location_assignment PIN_Y17   -to HEX2[3]
+set_location_assignment PIN_Y18   -to HEX2[4]
+set_location_assignment PIN_AF18  -to HEX2[5]
+set_location_assignment PIN_W16   -to HEX2[6]
+
+# HEX3
+set_location_assignment PIN_Y19   -to HEX3[0]
+set_location_assignment PIN_W19   -to HEX3[1]
+set_location_assignment PIN_AD19  -to HEX3[2]
+set_location_assignment PIN_AA20  -to HEX3[3]
+set_location_assignment PIN_AC20  -to HEX3[4]
+set_location_assignment PIN_AA19  -to HEX3[5]
+set_location_assignment PIN_AD20  -to HEX3[6]
+
+foreach hexbus {HEX0 HEX1 HEX2 HEX3} {
+    for {set i 0} {$i < 7} {incr i} {
+        set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to ${hexbus}[$i]
+    }
+}
+
+# =============================================================
+# Commit and save
+# =============================================================
+if {[catch {package require ::quartus::project}] == 0} {
+    export_assignments
+    if {[is_project_open]} {
+        project_close
+    }
+}
+
+puts "Pin assignment complete for DE10-Standard (top_reaction_game)."
